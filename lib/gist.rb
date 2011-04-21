@@ -95,6 +95,7 @@ module Gist
       else
         # Read from standard input.
         input = $stdin.read
+        files = [{:input => input, :extension => gist_extension}]
       end
 
       url = write(files, private_gist)
@@ -119,7 +120,7 @@ module Gist
 
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    http.ca_file = File.join(File.dirname(__FILE__), "cacert.pem")
+    http.cert = OpenSSL::X509::Certificate.new(ca_cert)
 
     req = Net::HTTP::Post.new(url.path)
     req.form_data = data(files, private_gist)
@@ -168,7 +169,7 @@ private
     data = {}
     files.each do |file|
       i = data.size + 1
-      data["file_ext[gistfile#{i}]"]      = file[:extention] ? file[:extention] : '.txt'
+      data["file_ext[gistfile#{i}]"]      = file[:extension] ? file[:extension] : '.txt'
       data["file_name[gistfile#{i}]"]     = file[:filename]
       data["file_contents[gistfile#{i}]"] = file[:input]
     end
@@ -181,7 +182,11 @@ private
     user  = config("github.user")
     token = config("github.token")
 
-    user.to_s.empty? ? {} : { :login => user, :token => token }
+    if user.to_s.empty? || token.to_s.empty?
+      {}
+    else
+      { :login => user, :token => token }
+    end
   end
 
   # Returns default values based on settings in your gitconfig. See
@@ -236,6 +241,12 @@ private
   end
 
   def ca_cert
-    DATA.read.split("__CACERT__").last
+    cert_path = File.join(File.dirname(__FILE__), "gist", "cacert.pem")
+
+    if File.exists? cert_path
+      File.read(cert_path)
+    else
+      DATA.read.split("__CACERT__").last
+    end
   end
 end

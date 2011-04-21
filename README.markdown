@@ -18,9 +18,19 @@ RubyGems:
 
 Old school:
 
-    curl -s http://github.com/defunkt/gist/raw/master/gist > gist &&
+    curl -s https://github.com/defunkt/gist/raw/master/gist > gist &&
     chmod 755 gist &&
     mv gist /usr/local/bin/gist
+
+Ubuntu:
+
+    sudo apt-get install ruby
+    sudo apt-get install rubygems
+    sudo apt-get install libopenssl-ruby
+    sudo gem install gist
+    sudo cp /var/lib/gems/1.8/bin/gist /usr/local/bin/
+    gist -h
+
 
 
 Use
@@ -94,4 +104,4 @@ Visit <http://defunkt.github.com/gist/> or use:
 Bugs
 ----
 
-<http://github.com/defunkt/gist/issues>
+<https://github.com/defunkt/gist/issues>
